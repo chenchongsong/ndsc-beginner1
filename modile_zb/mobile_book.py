@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
 import pandas as pd
 import copy
 import math
@@ -12,12 +6,11 @@ import math
 df = pd.read_csv('train.csv')
 
 now = df[['title', 'Category']][df.image_path.str.startswith('mobile_image')]
-# print(now.head())
 length = now.shape[0]
 print(length)
 
-lis = {}
 
+lis = {}
 brand = {}
 rbrand = {
     "Smartfren": 53,
@@ -49,9 +42,6 @@ rbrand = {
 }
 
 
-# In[2]:
-
-
 tmp = copy.deepcopy(list(rbrand.items()))
 rbrand.clear()
 for key, val in tmp:
@@ -62,13 +52,12 @@ for it in rbrand:
 print(brand)
 
 
-# In[3]:
-
-
+titles = now['title'].tolist()
+cats = now['Category'].tolist()
 
 for i in range(length):
-    idx = now.iloc[i]['Category'] - 31
-    cur = now.iloc[i]['title'].split()
+    idx = cats[i] - 31
+    cur = titles[i].split()
     for it in cur:
         word = it.lower()
         if word not in lis:
@@ -88,18 +77,10 @@ for it in lis:
         break
 
 
-# In[4]:
-
-
-
 df2 = pd.read_csv('test.csv')
 length = df2.shape[0]
-# ans = pd.DataFrame(columns = ('itemid', 'Category'))
 tot = 0
 print(length)
-
-
-# In[5]:
 
 
 image_paths = df2['image_path'].tolist()
@@ -112,15 +93,11 @@ print(len(titles))
 ans_list = [None for _ in range(length)]
 
 
-# In[6]:
-
-
 for i in range(length):
     if i % 10000 == 0:
         print(i)
     s = image_paths[i]
     if not s.startswith('mobile_image'):
-#         row = {'itemid': itemids[i], 'Category': 100}
         ans_list[i] = 100
         continue
     cur = titles[i].split()
@@ -149,19 +126,12 @@ for i in range(length):
                     rec = vec[j]
                     mem = j
             idx = mem + 31
-#     row = {'itemid': df2.loc[i]['itemid'], 'Category': idx}
     ans_list[i] = idx
 print(tot)
 
 
-# In[7]:
-
-
 ans = pd.DataFrame({"itemid": itemids, "Category": ans_list})
-ans.to_csv('mobile_ans_2.csv', index = False, sep = ',')
-
-
-# In[ ]:
+ans.to_csv('mobile_ans.csv', index = False, sep = ',')
 
 
 # good = bad = 0
@@ -198,4 +168,3 @@ ans.to_csv('mobile_ans_2.csv', index = False, sep = ',')
 #         bad += 1
 #
 # print(good, bad, good + bad)
-
