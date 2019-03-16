@@ -77,6 +77,42 @@ for it in lis:
         break
 
 
+cats = now['Category'].tolist()
+
+good = bad = 0
+for i in range(length):
+    cur = titles[i].split()
+    idx = cats[i]
+    ans = -1
+    vec = [0 for _ in range(28)]
+    consider = 0
+    for it in cur:
+        word = it.lower()
+        if word in rbrand:
+            ans = rbrand[word]
+            break
+        vec[-1] += lis[word][-1]
+        for j in range(27):
+            vec[j] += lis[word][j]
+    if ans == -1:
+        if vec[-1] < 5 * consider:
+            ans = 35
+        else:
+            rec = 0
+            mem = -1
+            for j in range(27):
+                if vec[j] > rec:
+                    rec = vec[j]
+                    mem = j
+            ans = mem + 31
+    if ans == idx:
+        good += 1
+    else:
+        bad += 1
+
+print(good, bad, good + bad, good / (good + bad))
+
+
 df2 = pd.read_csv('test.csv')
 length = df2.shape[0]
 tot = 0
@@ -86,16 +122,14 @@ print(length)
 image_paths = df2['image_path'].tolist()
 itemids = df2['itemid'].tolist()
 titles = df2['title'].tolist()
-print(len(image_paths))
-print(len(itemids))
-print(len(titles))
+# print(len(image_paths))
+# print(len(itemids))
+# print(len(titles))
 
 ans_list = [None for _ in range(length)]
 
 
 for i in range(length):
-    if i % 10000 == 0:
-        print(i)
     s = image_paths[i]
     if not s.startswith('mobile_image'):
         ans_list[i] = 100
@@ -104,19 +138,19 @@ for i in range(length):
     vec = [0 for _ in range(28)]
     idx = -1
     tot += 1
+    consider = 0
     for it in cur:
         word = it.lower()
         if word in rbrand:
             idx = rbrand[word]
             break
-        if word not in lis or lis[word][-1] < 5:
+        if word not in lis:
             continue
         vec[-1] += lis[word][-1]
-        weight = math.sqrt(lis[word][-1])
         for j in range(27):
-            vec[j] += lis[word][j] * weight
+            vec[j] += lis[word][j]
     if idx == -1:
-        if vec[-1] < 100:
+        if vec[-1] < 5 * consider:
             idx = 35
         else:
             rec = 0
@@ -131,40 +165,4 @@ print(tot)
 
 
 ans = pd.DataFrame({"itemid": itemids, "Category": ans_list})
-ans.to_csv('mobile_ans.csv', index = False, sep = ',')
-
-
-# good = bad = 0
-# for i in range(length):
-#     cur = now.iloc[i]['title'].split()
-#     idx = now.iloc[i]['Category']
-#     ans = -1
-#     vec = [0 for _ in range(28)]
-#     for it in cur:
-#         word = it.lower()
-#         if word in rbrand:
-#             ans = rbrand[word]
-#             break
-#         if lis[word][-1] < 5:
-#             continue
-#         vec[-1] += lis[word][-1]
-#         weight = math.sqrt(lis[word][-1])
-#         for j in range(27):
-#             vec[j] += lis[word][j] * weight
-#     if ans == -1:
-#         if vec[-1] < 100:
-#             ans = 35
-#         else:
-#             rec = 0
-#             mem = -1
-#             for j in range(27):
-#                 if vec[j] > rec:
-#                     rec = vec[j]
-#                     mem = j
-#             ans = mem + 31
-#     if ans == idx:
-#         good += 1
-#     else:
-#         bad += 1
-#
-# print(good, bad, good + bad)
+ans.to_csv('mobile_ans.csv', columns = ['itemid', 'Category'], index = False, sep = ',')
